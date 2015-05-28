@@ -1,0 +1,9 @@
+.project
+.shell_history
+*.ipr
+*.iws
+*.iml
+.idea
+target
+.DS_Store
+.settings
