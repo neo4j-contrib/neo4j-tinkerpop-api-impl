@@ -132,27 +132,6 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     }
 
     @Override
-    public void autoIndexProperties(boolean node, String... properties) {
-        if (node) {
-            db.index().getNodeAutoIndexer().setEnabled(true);
-            for (String property : properties) {
-                db.index().getNodeAutoIndexer().startAutoIndexingProperty(property);
-            }
-        } else {
-            db.index().getRelationshipAutoIndexer().setEnabled(true);
-            for (String property : properties) {
-                db.index().getRelationshipAutoIndexer().startAutoIndexingProperty(property);
-            }
-        }
-    }
-
-    @Override
-    public boolean hasAutoIndex(boolean node, String property) {
-        if (node) return db.index().getNodeAutoIndexer().getAutoIndexedProperties().contains(property);
-        return db.index().getRelationshipAutoIndexer().getAutoIndexedProperties().contains(property);
-    }
-
-    @Override
     public Iterable<String> getKeys() {
         return graphProps.getPropertyKeys();
     }
