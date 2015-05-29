@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2015 Neo Technology
- *
+ * <p/>
  * This file is part of neo4j-tinkerpop-binding <http://neo4j.com>.
- *
+ * <p/>
  * structr is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * <p/>
  * structr is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU Affero General Public License
  * along with neo4j-tinkerpop-binding.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,15 +32,33 @@ public class Neo4jTxImpl implements Neo4jTx {
         this.tx = tx;
     }
 
+    @Override
     public void failure() {
         tx.failure();
     }
 
+    @Override
     public void success() {
         tx.success();
     }
+
     @Override
     public void close() {
         tx.close();
+    }
+
+    @Override
+    public String toString() {
+        return this.tx.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return this.tx.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        return this.tx.equals(other);
     }
 }
