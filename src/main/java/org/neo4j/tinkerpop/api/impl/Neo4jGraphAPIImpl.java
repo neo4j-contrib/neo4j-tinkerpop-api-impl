@@ -181,15 +181,4 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     public String toString() {
         return db.toString();
     }
-
-    @Override
-    public int hashCode() {
-        return db.hashCode();
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        return db.equals(other);
-    }
-
 }

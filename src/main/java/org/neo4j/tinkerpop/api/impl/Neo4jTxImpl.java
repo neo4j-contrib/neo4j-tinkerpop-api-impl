@@ -51,14 +51,4 @@ public class Neo4jTxImpl implements Neo4jTx {
     public String toString() {
         return this.tx.toString();
     }
-
-    @Override
-    public int hashCode() {
-        return this.tx.hashCode();
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        return this.tx.equals(other);
-    }
 }
