@@ -37,8 +37,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.neo4j.tinkerpop.api.impl.Util.wrapNodes;
-
 public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     private final GraphDatabaseService db;
     private final GraphPropertiesImpl graphProps;
@@ -70,17 +68,12 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
 
     @Override
     public Iterable<Neo4jNode> allNodes() {
-        return wrapNodes(db.getAllNodes());
+        return Util.wrapNodes(GlobalGraphOperations.at(db).getAllNodes());
     }
 
     @Override
     public Iterable<Neo4jRelationship> allRelationships() {
         return Util.wrapRels(GlobalGraphOperations.at(db).getAllRelationships());
-    }
-
-    @Override
-    public Iterable<Neo4jRelationship> findRelationships(String property, Object value) {
-        return Util.wrapRels(db.index().getRelationshipAutoIndexer().getAutoIndex().get(property, value));
     }
 
     @Override
@@ -90,12 +83,12 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
 
     @Override
     public Iterable<Neo4jNode> findNodes(String label) {
-        return wrapNodes(db.findNodes(DynamicLabel.label(label)));
+        return Util.wrapNodes(db.findNodes(DynamicLabel.label(label)));
     }
 
     @Override
     public Iterable<Neo4jNode> findNodes(String label, String property, Object value) {
-        return wrapNodes(db.findNodes(DynamicLabel.label(label), property, value));
+        return Util.wrapNodes(db.findNodes(DynamicLabel.label(label), property, value));
     }
 
     @Override
@@ -114,9 +107,7 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
                     result.put(entry.getKey(), Util.wrapObject(entry.getValue()));
                 }
                 return result;
-            }
-
-            ;
+            };
         };
     }
 
