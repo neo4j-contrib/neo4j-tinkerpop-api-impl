@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     private final GraphDatabaseService db;
@@ -107,7 +108,9 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
                     result.put(entry.getKey(), Util.wrapObject(entry.getValue()));
                 }
                 return result;
-            };
+            }
+
+            ;
         };
     }
 
@@ -150,5 +153,10 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     @Override
     public String toString() {
         return db.toString();
+    }
+
+    @Override
+    public void awaitIndexesOnline(final long time, final TimeUnit timeUnit) {
+        db.schema().awaitIndexesOnline(time, timeUnit);
     }
 }
