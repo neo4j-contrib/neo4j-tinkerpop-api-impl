@@ -20,7 +20,6 @@ package org.neo4j.tinkerpop.api.impl;
 
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.helpers.collection.IteratorWrapper;
 import org.neo4j.kernel.GraphDatabaseAPI;
@@ -36,7 +35,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     private final GraphDatabaseService db;
@@ -75,11 +73,6 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     @Override
     public Iterable<Neo4jRelationship> allRelationships() {
         return Util.wrapRels(GlobalGraphOperations.at(db).getAllRelationships());
-    }
-
-    @Override
-    public Iterable<Neo4jNode> findNodes(String property, Object value) {
-        return Util.wrapNodes((Iterable<Node>) db.index().getNodeAutoIndexer().getAutoIndex().get(property, value));
     }
 
     @Override
@@ -153,10 +146,5 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     @Override
     public String toString() {
         return db.toString();
-    }
-
-    @Override
-    public void awaitIndexesOnline(final long time, final TimeUnit timeUnit) {
-        db.schema().awaitIndexesOnline(time, timeUnit);
     }
 }
