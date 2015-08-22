@@ -20,7 +20,7 @@
 
     <url>http://github.com/neo4j-contrib/neo4j-tinkerpop-api-impl</url>
     <properties>
-        <neo4j.version>2.2.2</neo4j.version>
+        <neo4j.version>2.2.4</neo4j.version>
     </properties>
 
 
