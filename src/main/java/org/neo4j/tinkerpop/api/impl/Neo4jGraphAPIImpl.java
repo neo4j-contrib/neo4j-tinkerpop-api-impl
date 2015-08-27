@@ -40,7 +40,7 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     private final GraphDatabaseService db;
     private final GraphPropertiesImpl graphProps;
 
-    Neo4jGraphAPIImpl(GraphDatabaseService db) {
+    public Neo4jGraphAPIImpl(GraphDatabaseService db) {
         this.db = db;
         graphProps = ((GraphDatabaseAPI) this.db).getDependencyResolver().resolveDependency(NodeManager.class).newGraphProperties();
     }
