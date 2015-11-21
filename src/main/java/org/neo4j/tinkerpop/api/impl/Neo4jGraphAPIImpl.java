@@ -147,4 +147,8 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     public String toString() {
         return db.toString();
     }
+
+    public GraphDatabaseService getGraphDatabase() {
+        return db;
+    }
 }

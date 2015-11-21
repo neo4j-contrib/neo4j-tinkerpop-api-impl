@@ -20,6 +20,7 @@ package org.neo4j.tinkerpop.api.impl;
 
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.tinkerpop.api.Neo4jFactory;
 import org.neo4j.tinkerpop.api.Neo4jGraphAPI;
 
@@ -39,11 +40,16 @@ public class Neo4jFactoryImpl implements Neo4jFactory {
             if (path.startsWith("file:")) {
                 path = new URL(path).getPath();
             }
-            GraphDatabaseBuilder builder = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(path);
+            GraphDatabaseBuilder builder = createGraphDatabaseFactory(config).newEmbeddedDatabaseBuilder(path);
             if (config != null) builder = builder.setConfig(config);
             return new Neo4jGraphAPIImpl(builder.newGraphDatabase());
         } catch(MalformedURLException e) {
             throw new RuntimeException("Error handling path "+path,e);
         }
+    }
+
+    protected GraphDatabaseFactory createGraphDatabaseFactory(Map<String, String> config) {
+        if (config != null && config.containsKey("ha.server_id")) return new HighlyAvailableGraphDatabaseFactory();
+        return new GraphDatabaseFactory();
     }
 }
