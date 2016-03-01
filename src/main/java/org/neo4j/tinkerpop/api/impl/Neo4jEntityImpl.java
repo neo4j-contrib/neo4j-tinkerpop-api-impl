@@ -80,4 +80,14 @@ public class Neo4jEntityImpl<T extends PropertyContainer> implements Neo4jEntity
     public String toString() {
         return this.entity.toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return getClass().isInstance(obj) && ((Neo4jEntity)obj).getId() == getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) getId();
+    }
 }
