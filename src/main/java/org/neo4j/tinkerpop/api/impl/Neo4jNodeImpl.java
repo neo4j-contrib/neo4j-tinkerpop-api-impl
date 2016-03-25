@@ -18,11 +18,7 @@
  */
 package org.neo4j.tinkerpop.api.impl;
 
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.DynamicLabel;
-import org.neo4j.graphdb.DynamicRelationshipType;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.*;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.tinkerpop.api.Neo4jDirection;
 import org.neo4j.tinkerpop.api.Neo4jNode;
@@ -30,7 +26,7 @@ import org.neo4j.tinkerpop.api.Neo4jRelationship;
 
 import java.util.Set;
 
-import static org.neo4j.graphdb.DynamicRelationshipType.withName;
+import static org.neo4j.graphdb.RelationshipType.withName;
 import static org.neo4j.tinkerpop.api.impl.Util.wrap;
 
 /**
@@ -49,17 +45,17 @@ public class Neo4jNodeImpl extends Neo4jEntityImpl<Node> implements Neo4jNode {
 
     @Override
     public boolean hasLabel(String label) {
-        return entity.hasLabel(DynamicLabel.label(label));
+        return entity.hasLabel(Label.label(label));
     }
 
     @Override
     public void addLabel(String label) {
-        entity.addLabel(DynamicLabel.label(label));
+        entity.addLabel(Label.label(label));
     }
 
     @Override
     public void removeLabel(String label) {
-        entity.removeLabel(DynamicLabel.label(label));
+        entity.removeLabel(Label.label(label));
     }
 
     @Override
@@ -93,6 +89,6 @@ public class Neo4jNodeImpl extends Neo4jEntityImpl<Node> implements Neo4jNode {
 
     @Override
     public Neo4jRelationship connectTo(Neo4jNode node, String type) {
-        return wrap(entity.createRelationshipTo(((Neo4jNodeImpl) node).entity, DynamicRelationshipType.withName(type)));
+        return wrap(entity.createRelationshipTo(((Neo4jNodeImpl) node).entity, RelationshipType.withName(type)));
     }
 }

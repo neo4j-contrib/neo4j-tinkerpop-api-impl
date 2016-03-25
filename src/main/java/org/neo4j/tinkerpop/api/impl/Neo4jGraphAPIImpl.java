@@ -18,18 +18,17 @@
  */
 package org.neo4j.tinkerpop.api.impl;
 
-import org.neo4j.graphdb.DynamicLabel;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.helpers.collection.IteratorWrapper;
-import org.neo4j.kernel.GraphDatabaseAPI;
 import org.neo4j.kernel.impl.core.NodeManager;
 import org.neo4j.kernel.impl.core.GraphProperties;
+import org.neo4j.kernel.internal.GraphDatabaseAPI;
 import org.neo4j.tinkerpop.api.Neo4jGraphAPI;
 import org.neo4j.tinkerpop.api.Neo4jNode;
 import org.neo4j.tinkerpop.api.Neo4jRelationship;
 import org.neo4j.tinkerpop.api.Neo4jTx;
-import org.neo4j.tooling.GlobalGraphOperations;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -67,22 +66,22 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
 
     @Override
     public Iterable<Neo4jNode> allNodes() {
-        return Util.wrapNodes(GlobalGraphOperations.at(db).getAllNodes());
+        return Util.wrapNodes(db.getAllNodes());
     }
 
     @Override
     public Iterable<Neo4jRelationship> allRelationships() {
-        return Util.wrapRels(GlobalGraphOperations.at(db).getAllRelationships());
+        return Util.wrapRels(db.getAllRelationships());
     }
 
     @Override
     public Iterable<Neo4jNode> findNodes(String label) {
-        return Util.wrapNodes(db.findNodes(DynamicLabel.label(label)));
+        return Util.wrapNodes(db.findNodes(Label.label(label)));
     }
 
     @Override
     public Iterable<Neo4jNode> findNodes(String label, String property, Object value) {
-        return Util.wrapNodes(db.findNodes(DynamicLabel.label(label), property, value));
+        return Util.wrapNodes(db.findNodes(Label.label(label), property, value));
     }
 
     @Override
@@ -109,7 +108,7 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
 
     @Override
     public boolean hasSchemaIndex(String label, String property) {
-        Iterable<IndexDefinition> indexes = db.schema().getIndexes(DynamicLabel.label(label));
+        Iterable<IndexDefinition> indexes = db.schema().getIndexes(Label.label(label));
         for (IndexDefinition index : indexes) {
             for (String prop : index.getPropertyKeys()) {
                 if (prop.equals(property)) return true;

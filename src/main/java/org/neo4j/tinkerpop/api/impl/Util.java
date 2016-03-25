@@ -25,13 +25,13 @@ import org.neo4j.tinkerpop.api.Neo4jRelationship;
 
 import java.util.*;
 
-import static org.neo4j.graphdb.DynamicRelationshipType.withName;
+import static org.neo4j.graphdb.RelationshipType.withName;
 
 class Util {
     static Label[] toLabels(String... labels) {
         Label[] result = new Label[labels.length];
         for (int i = 0; i < labels.length; i++) {
-            result[i]= DynamicLabel.label(labels[i]);
+            result[i]= Label.label(labels[i]);
         }
         return result;
     }

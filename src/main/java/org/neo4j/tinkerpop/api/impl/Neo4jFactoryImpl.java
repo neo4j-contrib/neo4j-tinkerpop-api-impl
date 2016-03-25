@@ -24,6 +24,7 @@ import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.tinkerpop.api.Neo4jFactory;
 import org.neo4j.tinkerpop.api.Neo4jGraphAPI;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class Neo4jFactoryImpl implements Neo4jFactory {
             if (path.startsWith("file:")) {
                 path = new URL(path).getPath();
             }
-            GraphDatabaseBuilder builder = createGraphDatabaseFactory(config).newEmbeddedDatabaseBuilder(path);
+            GraphDatabaseBuilder builder = createGraphDatabaseFactory(config).newEmbeddedDatabaseBuilder(new File(path));
             if (config != null) builder = builder.setConfig(config);
             return new Neo4jGraphAPIImpl(builder.newGraphDatabase());
         } catch(MalformedURLException e) {
