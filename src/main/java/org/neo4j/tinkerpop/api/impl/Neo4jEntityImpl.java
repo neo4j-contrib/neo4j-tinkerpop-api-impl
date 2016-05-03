@@ -90,4 +90,8 @@ public class Neo4jEntityImpl<T extends PropertyContainer> implements Neo4jEntity
     public int hashCode() {
         return (int) getId();
     }
+
+    public T getEntity() {
+        return entity;
+    }
 }
