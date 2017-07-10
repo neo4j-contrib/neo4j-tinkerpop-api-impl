@@ -6,18 +6,15 @@ import org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jGraph;
 import org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jVertex;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.structure.T;
 import org.neo4j.kernel.api.KernelTransaction;
 import org.neo4j.kernel.api.security.AccessMode;
+import org.neo4j.kernel.api.security.SecurityContext;
 import org.neo4j.kernel.impl.core.GraphProperties;
 import org.neo4j.kernel.impl.core.GraphPropertiesProxy;
 import org.neo4j.kernel.impl.core.NodeManager;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
 import org.neo4j.logging.Log;
-import org.neo4j.procedure.Context;
-import org.neo4j.procedure.Name;
-import org.neo4j.procedure.PerformsWrites;
-import org.neo4j.procedure.Procedure;
+import org.neo4j.procedure.*;
 import org.neo4j.tinkerpop.api.impl.Neo4jGraphAPIImpl;
 import org.neo4j.tinkerpop.api.impl.Neo4jNodeImpl;
 import org.neo4j.tinkerpop.api.impl.Neo4jRelationshipImpl;
@@ -38,34 +35,24 @@ public class Gremlin {
     public GraphDatabaseAPI db;
 
     @Context
-    public KernelTransaction ktx;
+    public SecurityContext securityContext;
 
     @Context
     public Log log;
 
-    private static final GraphPropertiesProxy NO_GRAPH_PROPERTIES = new GraphPropertiesProxy(null);
-    private static GraphProperties graphProperties = NO_GRAPH_PROPERTIES;
+    private static GremlinGroovyScriptEngine engine = new GremlinGroovyScriptEngine();
+    static {
+        addFunctions(engine,
+                "def label(s) { return org.neo4j.graphdb.DynamicLabel.label(s)}",
+                "def type(s) { return org.neo4j.graphdb.DynamicRelationshipType.withName(s)}");
 
-    private static ThreadLocal<ScriptEngine> engine = new ThreadLocal<>();
-
-    private GraphProperties graphProperties() {
-        if (graphProperties == NO_GRAPH_PROPERTIES)
-            graphProperties = db.getDependencyResolver().resolveDependency(NodeManager.class).newGraphProperties();
-        return graphProperties;
-    }
-    private ScriptEngine getEngine() {
-        if (engine.get() == null) {
-            ScriptEngine gremlin = new GremlinGroovyScriptEngine();
-            //new ScriptEngineManager().getEngineByName("gremlin-groovy");
-            addFunctions(gremlin,
-                    "def label(s) { return org.neo4j.graphdb.DynamicLabel.label(s)}",
-                    "def type(s) { return org.neo4j.graphdb.DynamicRelationshipType.withName(s)}");
-            engine.set(gremlin);
-        }
-        return engine.get();
     }
 
-    private void addFunctions(ScriptEngine engine, String...script) {
+    private GremlinGroovyScriptEngine getEngine() {
+        return engine;
+    }
+
+    private static void addFunctions(ScriptEngine engine, String... script) {
         try {
             for (String s : script) {
                 if (s==null) continue;
@@ -76,52 +63,20 @@ public class Gremlin {
         }
     }
 
-    @Procedure
-    @PerformsWrites
-    public Stream<Result> runFunction(@Name("name") String name, @Name("params") List params) {
-        try {
-            ScriptEngine engine = getEngine();
-            Object function = engine.get(name);
-            Bindings bindings = engine.createBindings();
-            Neo4jGraph neo4jGraph = Neo4jGraph.open(new Neo4jGraphAPIImpl(db));
-            GraphTraversalSource traversal = neo4jGraph.traversal();
-            bindings.put("db", db);
-            bindings.put("graph", neo4jGraph);
-            bindings.put("g", traversal);
-            bindings.put("log", log);
-            if (function == null) {
-                String code = (String) graphProperties().getProperty(name, null);
-                if (code == null)
-                    throw new RuntimeException("Function " + name + " not defined, use CALL function('name','code') ");
-                else {
-                    engine.eval(code);
-                }
-            }
-            Object value = ((Invocable) engine).invokeFunction(name, params == null ? NO_OBJECTS : params.toArray());
-            return mapResults(value);
-        } catch (ScriptException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    @Procedure
-    @PerformsWrites
-    public Stream<Result> run(@Name("code") String code, @Name("params") Map<String,Object> params) {
-        try {
-            ScriptEngine engine = getEngine();
-            Bindings bindings = engine.createBindings();
-            if (params != null) bindings.putAll(params);
-            bindings.put("db", db);
-            // todo cache
-            Neo4jGraph neo4jGraph = Neo4jGraph.open(new Neo4jGraphAPIImpl(db));
+    @Procedure(mode = Mode.WRITE)
+    public Stream<Result> run(@Name("code") String code, @Name("params") Map<String, Object> params) throws ScriptException {
+        ScriptEngine engine = getEngine();
+        Bindings bindings = engine.createBindings();
+        if (params != null) bindings.putAll(params);
+        bindings.put("db", db);
+        // todo cache
+        Neo4jGraph neo4jGraph = Neo4jGraph.open(new Neo4jGraphAPIImpl(db));
 
-            bindings.put("graph", neo4jGraph);
-            bindings.put("g", neo4jGraph.traversal());
-            bindings.put("log", log);
-            Object value = engine.eval(code,bindings);
-            return mapResults(value);
-        } catch (ScriptException e) {
-            throw new RuntimeException(e);
-        }
+        bindings.put("graph", neo4jGraph);
+        bindings.put("g", neo4jGraph.traversal());
+        bindings.put("log", log);
+        Object value = engine.eval(code, bindings);
+        return mapResults(value);
     }
 
     protected Stream<Result> mapResults(Object value) {
@@ -172,27 +127,6 @@ public class Gremlin {
             result.add(convert(input.next()));
         }
         return result;
-    }
-
-    @Procedure
-    @PerformsWrites
-    public Stream<Operation> function(@Name("name") String name, @Name("code") String code) {
-        try (KernelTransaction.Revertable access = ktx.restrict(AccessMode.Static.FULL)) {
-            ScriptEngine js = getEngine();
-
-            js.eval(code);
-            GraphProperties props = graphProperties();
-            boolean replaced = props.hasProperty(name);
-            props.setProperty(name, code);
-            return Stream.of(new Operation(name,replaced ? "Updated" : "Added"));
-        } catch (ScriptException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Procedure
-    public Stream<Result> list() {
-        return StreamSupport.stream(graphProperties.getPropertyKeys().spliterator(), false).map(Result::new);
     }
 
     public static class Operation {

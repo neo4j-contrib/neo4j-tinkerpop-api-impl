@@ -74,7 +74,9 @@ public class GremlinTest {
     }
 
     public static void registerProcedure(GraphDatabaseService db, Class<?> procedure) throws KernelException {
-        ((GraphDatabaseAPI)db).getDependencyResolver().resolveDependency(Procedures.class).register(procedure);
+        Procedures procedures = ((GraphDatabaseAPI) db).getDependencyResolver().resolveDependency(Procedures.class);
+        procedures.registerProcedure(procedure);
+        procedures.registerFunction(procedure);
     }
 
 }
