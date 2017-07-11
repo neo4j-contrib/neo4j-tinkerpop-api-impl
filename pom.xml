@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-tinkerpop-api-parent</artifactId>
-    <version>0.7-3.2.3</version>
+    <version>0.5-3.1.5</version>
     <packaging>pom</packaging>
     <name>Neo4j Tinkerpop API Implementation Parent</name>
     <description>Apache Licensed Neo4j Tinkerpop API Implementation Parent</description>
@@ -20,7 +20,8 @@
 
     <url>http://github.com/neo4j-contrib/neo4j-tinkerpop-api-impl</url>
     <properties>
-        <neo4j.version>3.2.3</neo4j.version>
+        <neo4j.version>3.1.5</neo4j.version>
+        <gremlin.version>3.2.5</gremlin.version>
     </properties>
 
     <scm>
