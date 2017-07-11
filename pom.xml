@@ -21,7 +21,7 @@
     <url>http://github.com/neo4j-contrib/neo4j-tinkerpop-api-impl</url>
     <properties>
         <neo4j.version>3.2.2</neo4j.version>
-        <gremlin.version>3.2.4</gremlin.version>
+        <gremlin.version>3.2.5</gremlin.version>
     </properties>
 
 
