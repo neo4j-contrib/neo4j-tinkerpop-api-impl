@@ -1,23 +1,13 @@
 Implementation of Apache Licensed Neo4j API for Tinkerpop3
 ==========================================================
 
-This repository contains both, the implementation of the `neo4j-tinkerpop-api`
-in `neo4j-tinkerpop-api-impl`
+This repository contains the implementation of the `neo4j-tinkerpop-api` as `neo4j-tinkerpop-api-impl`
 
-This is work in progress, it depends on neo4j-gremlin being updated to use `neo4j-tinkerpop-api`
-which is available here (https://github.com/jexp/incubator-tinkerpop)
+This work depends on neo4j-gremlin being updated to use the latest version of `neo4j-tinkerpop-api(-impl)`.
 
 To build:
 
 ````
-# build tinkerpop3 branch with neo4j-gremlin updated
-
-git clone https://github.com/jexp/incubator-tinkerpop
-cd incubator-tinkerpop
-git checkout neo4j-gremlin
-mvn clean install -DskipTests
-cd ..
-
 # build neo4j-tinkerpop-api
 
 git clone github.com/neo4j-contrib/neo4j-tinkerpop-api
@@ -31,24 +21,32 @@ git clone github.com/neo4j-contrib/neo4j-tinkerpop-api-impl
 cd neo4j-tinkerpop-api-impl
 mvn clean install
 
-# run neo4j-gremlin tests
-git clone github.com/neo4j-contrib/neo4j-tinkerpop-api-binding
-cd neo4j-tinkerpop-api-binding/neo4j-tinkerpop-api-tests
-mvn -o install
+# build tinkerpop3 branch with neo4j-gremlin updated
 
-...
-Tests run: 1903, Failures: 2, Errors: 12, Skipped: 382
+git clone https://github.com/jexp/incubator-tinkerpop
+cd incubator-tinkerpop/neo4j-gremlin
+mvn clean install
+# skip enforcer 
+# mvn clean install -DincludeNeo4j -Denforcer.skip=true
+cd ..
 
-````
+```
+Results :
+
+Tests run: 4133, Failures: 0, Errors: 0, Skipped: 601
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 28:18 min
+```
 
 # Support for running Gremlin as Stored Procedure in Neo4j 3.x
 
-
 ```
-mvn package
-cp target/neo4j-tinkerpop-api-impl-0.3-3.0.0-procedure.jar  $NEO4J_HOME/plugins/
+cp neo4j-tinkerpop-api-impl/target/neo4j-tinkerpop-api-impl-*-procedure.jar  $NEO4J_HOME/plugins/
 $NEO4J_HOME/bin/neo4j restart
-$NEO4J_HOME/bin/neo4j-shell
+$NEO4J_HOME/bin/cypher-shell -u neo4j -p test
 neo4j-sh (?)$ cypher call gremlin.run("g.V().hasLabel('Product').has('productName',name)", {name:'Chai'});
 
 +--------------------------------------------------------------------+
