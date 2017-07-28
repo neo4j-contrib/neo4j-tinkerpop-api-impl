@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-tinkerpop-api-impl</artifactId>
-    <version>0.5-3.1.5</version>
+    <version>0.7-3.2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Neo4j Tinkerpop API Implementation</name>
     <description>Apache Licensed Neo4j Tinkerpop API Implementation</description>
@@ -24,6 +24,14 @@
         <gremlin.version>3.2.5</gremlin.version>
     </properties>
 
+
+    <repositories>
+        <repository>
+            <id>apache-snapshots</id>
+            <url>http://repository.apache.org/snapshots/</url>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
 
     <scm>
         <url>https://github.com/neo4j-contrib/neo4j-tinkerpop-api-impl</url>
@@ -48,12 +56,6 @@
             <artifactId>neo4j-tinkerpop-api</artifactId>
             <version>0.1</version>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-tinkerpop-api</artifactId>
-            <version>0.1</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>
