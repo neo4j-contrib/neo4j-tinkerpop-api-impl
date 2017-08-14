@@ -1,16 +1,15 @@
 package gremlin;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import org.apache.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
 import org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jEdge;
 import org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jGraph;
 import org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jVertex;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.io.fs.FileUtils;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.Context;
+import org.neo4j.procedure.Description;
 import org.neo4j.procedure.Mode;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
@@ -21,12 +20,12 @@ import org.neo4j.tinkerpop.api.impl.Neo4jRelationshipImpl;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import org.neo4j.io.fs.FileUtils;
-import org.neo4j.procedure.Description;
-import static org.neo4j.procedure.Mode.WRITE;
 
 /**
  * @author mh
@@ -81,7 +80,7 @@ public class Gremlin {
         return mapResults(value);
     }
     
-    @Procedure(mode = WRITE)
+    @Procedure(mode = Mode.WRITE)
     @Description("gremlin.runFile(file or url) - runs code from file")
     public Stream<Result> runFile(@Name("fileName") String fileName, @Name("params") Map<String,Object> params) throws ScriptException {
         File file = new File(fileName);
