@@ -6,8 +6,10 @@ import org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jGraph;
 import org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jVertex;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.io.fs.FileUtils;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.Context;
+import org.neo4j.procedure.Description;
 import org.neo4j.procedure.Mode;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
@@ -18,6 +20,9 @@ import org.neo4j.tinkerpop.api.impl.Neo4jRelationshipImpl;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -59,7 +64,8 @@ public class Gremlin {
     }
 
     @Procedure(mode = Mode.WRITE)
-    public Stream<Result> run(@Name("code") String code, @Name("params") Map<String, Object> params) throws ScriptException {
+    @Description("gremlin.run(code) - runs gremlin script, with optional parameters")
+    public Stream<Result> run(@Name("code") String code, @Name(value="params", defaultValue="null") Map<String, Object> params) throws ScriptException {
         ScriptEngine engine = getEngine();
         Bindings bindings = engine.createBindings();
         if (params != null) bindings.putAll(params);
@@ -74,6 +80,22 @@ public class Gremlin {
         return mapResults(value);
     }
 
+
+    @Procedure(mode = Mode.WRITE)
+    @Description("gremlin.runFile(file or url) - runs gremlin script from file, you can still pass parameters")
+    public Stream<Result> runFile(@Name("fileName") String fileName, @Name(value="params", defaultValue="null") Map<String,Object> params) throws ScriptException {
+        File file = new File(fileName);
+        try {
+            if (!file.exists() || !file.isFile() || !file.canRead())
+           throw new IOException("Cannot open file "+fileName+" for reading.");
+    
+            final String code = FileUtils.readTextFile(file, Charset.defaultCharset());
+            return run(code, params);
+    
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }		
+    }
     protected Stream<Result> mapResults(Object value) {
         if (value instanceof Traversal) {
             return ((Traversal)value).toStream().map(Gremlin::toResult);
