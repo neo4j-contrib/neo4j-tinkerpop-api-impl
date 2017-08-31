@@ -2,11 +2,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-tinkerpop-api-parent</artifactId>
+    <artifactId>neo4j-tinkerpop-api-impl</artifactId>
     <version>0.7-3.2.3</version>
-    <packaging>pom</packaging>
-    <name>Neo4j Tinkerpop API Implementation Parent</name>
-    <description>Apache Licensed Neo4j Tinkerpop API Implementation Parent</description>
+    <packaging>jar</packaging>
+    <name>Neo4j Tinkerpop API Implementation</name>
+    <description>Apache Licensed Neo4j Tinkerpop API Implementation</description>
 
     <organization>
         <name>Neo Technology, Inc.</name>
@@ -39,11 +39,6 @@
           <distribution>repo</distribution>
       </license>
     </licenses>
-
-    <modules>
-        <module>api-impl</module>
-        <module>procedures</module>
-    </modules>
 
     <dependencies>
         <dependency>
