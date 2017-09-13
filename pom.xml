@@ -125,7 +125,7 @@
                 <artifactId>maven-license-plugin</artifactId>
                 <version>1.10.b1</version>
                 <configuration>
-                    <header>gplv3-header.txt</header>
+                    <header>ApacheLicense-2.0-header.txt</header>
                     <strictCheck>true</strictCheck>
                     <failIfMissing>true</failIfMissing>
                     <includes>
