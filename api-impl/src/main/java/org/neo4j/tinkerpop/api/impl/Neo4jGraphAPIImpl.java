@@ -22,7 +22,7 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.helpers.collection.IteratorWrapper;
-import org.neo4j.kernel.impl.core.NodeManager;
+import org.neo4j.kernel.impl.core.EmbeddedProxySPI;
 import org.neo4j.kernel.impl.core.GraphProperties;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
 import org.neo4j.tinkerpop.api.Neo4jGraphAPI;
@@ -41,7 +41,7 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
 
     public Neo4jGraphAPIImpl(GraphDatabaseService db) {
         this.db = db;
-        graphProps = ((GraphDatabaseAPI) this.db).getDependencyResolver().resolveDependency(NodeManager.class).newGraphProperties();
+        graphProps = ((GraphDatabaseAPI) this.db).getDependencyResolver().resolveDependency(EmbeddedProxySPI.class).newGraphPropertiesProxy();
     }
 
     @Override

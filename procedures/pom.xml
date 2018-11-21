@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-tinkerpop-procedures</artifactId>
-    <version>0.7-3.3.0</version>
+    <version>0.8-3.4.0</version>
     <packaging>jar</packaging>
     <name>Neo4j Tinkerpop API Procedures</name>
     <description>Apache Licensed Neo4j Tinkerpop Procedures</description>
@@ -20,8 +20,8 @@
 
     <url>http://github.com/neo4j-contrib/neo4j-tinkerpop-api-impl</url>
     <properties>
-        <neo4j.version>3.3.0</neo4j.version>
-        <gremlin.version>3.3.0</gremlin.version>
+        <neo4j.version>3.4.10</neo4j.version>
+        <gremlin.version>3.3.4</gremlin.version>
     </properties>
 
 
