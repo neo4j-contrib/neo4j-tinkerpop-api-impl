@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-tinkerpop-api-impl</artifactId>
-    <version>0.8-3.4.0</version>
+    <version>0.9-3.4.0</version>
     <packaging>jar</packaging>
     <name>Neo4j Tinkerpop API Implementation</name>
     <description>Apache Licensed Neo4j Tinkerpop API Implementation</description>
@@ -20,7 +20,7 @@
 
     <url>http://github.com/neo4j-contrib/neo4j-tinkerpop-api-impl</url>
     <properties>
-        <neo4j.version>3.4.10</neo4j.version>
+        <neo4j.version>3.4.11</neo4j.version>
     </properties>
 
     <scm>
