@@ -33,6 +33,33 @@ public class BasicAPITest {
         db.shutdown();
     }
 
+    @Test
+    public void testStringSearchMode() {
+        Neo4jGraphAPI db = new Neo4jFactoryImpl().newGraphDatabase("target/test.db", null);
+
+        // Create small test graph
+        try (Neo4jTx tx = db.tx()) {
+            Neo4jNode dan = db.createNode("Person");
+            dan.setProperty("name", "Foobar");
+            tx.success();
+        }
+
+        // Check
+        try (Neo4jTx tx = db.tx()) {
+            assertTrue(db.findNodes("Person", "name", "Foobar", Neo4jStringSearchMode.EXACT).iterator().hasNext());
+            assertFalse(db.findNodes("Person", "name", "ba", Neo4jStringSearchMode.EXACT).iterator().hasNext());
+            assertTrue(db.findNodes("Person", "name", "Foo", Neo4jStringSearchMode.PREFIX).iterator().hasNext());
+            assertFalse(db.findNodes("Person", "name", "123", Neo4jStringSearchMode.PREFIX).iterator().hasNext());
+            assertTrue(db.findNodes("Person", "name", "bar", Neo4jStringSearchMode.SUFFIX).iterator().hasNext());
+            assertFalse(db.findNodes("Person", "name", "123", Neo4jStringSearchMode.SUFFIX).iterator().hasNext());
+            assertTrue(db.findNodes("Person", "name", "ba", Neo4jStringSearchMode.CONTAINS).iterator().hasNext());
+            assertFalse(db.findNodes("Person", "name", "123", Neo4jStringSearchMode.CONTAINS).iterator().hasNext());
+            tx.success();
+        } finally {
+            db.shutdown();
+        }
+    }
+
     protected void createGraph(Neo4jGraphAPI db, boolean success) {
         try (Neo4jTx tx = db.tx()) {
             Neo4jNode dan = db.createNode("Person");
