@@ -18,6 +18,7 @@
  */
 package org.neo4j.tinkerpop.api.impl;
 
+import java.lang.reflect.Array;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
@@ -30,9 +31,11 @@ import org.neo4j.tinkerpop.api.Neo4jEntity;
 public class Neo4jEntityImpl<T extends PropertyContainer> implements Neo4jEntity {
 
     protected final T entity;
+    protected final PropertyConverter propertyConverter;
 
-    public Neo4jEntityImpl(T entity) {
+    public Neo4jEntityImpl(T entity, PropertyConverter propertyConverter) {
         this.entity = entity;
+        this.propertyConverter = propertyConverter;
     }
 
     @Override
@@ -47,17 +50,30 @@ public class Neo4jEntityImpl<T extends PropertyContainer> implements Neo4jEntity
 
     @Override
     public Object getProperty(String name) {
-        return entity.getProperty(name);
+        Object property = entity.getProperty(name);
+        return propertyConverter.onGet(property);
     }
 
     @Override
     public Object getProperty(String name, Object defaultValue) {
-        return entity.getProperty(name, defaultValue);
+        Object property = entity.getProperty(name, defaultValue);
+        if (defaultValue != property) {
+            return propertyConverter.onGet(property);
+        } else {
+            return property;
+        }
     }
 
     @Override
     public void setProperty(String name, Object value) {
-        entity.setProperty(name, value);
+        Object converted = propertyConverter.onSet(value);
+        if (converted != null &&
+            converted.getClass().isArray() &&
+            Array.getLength(converted) == 0) {
+            entity.removeProperty(name);
+        } else {
+            entity.setProperty(name, converted);
+        }
     }
 
     @Override

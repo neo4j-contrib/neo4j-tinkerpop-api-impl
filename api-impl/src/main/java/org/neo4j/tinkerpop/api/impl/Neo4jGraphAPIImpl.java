@@ -18,6 +18,10 @@
  */
 package org.neo4j.tinkerpop.api.impl;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.StringSearchMode;
@@ -26,35 +30,36 @@ import org.neo4j.helpers.collection.IteratorWrapper;
 import org.neo4j.kernel.impl.core.EmbeddedProxySPI;
 import org.neo4j.kernel.impl.core.GraphProperties;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
-import org.neo4j.tinkerpop.api.*;
-
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.neo4j.tinkerpop.api.Neo4jGraphAPI;
+import org.neo4j.tinkerpop.api.Neo4jNode;
+import org.neo4j.tinkerpop.api.Neo4jRelationship;
+import org.neo4j.tinkerpop.api.Neo4jStringSearchMode;
+import org.neo4j.tinkerpop.api.Neo4jTx;
 
 public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     private final GraphDatabaseService db;
+    private final PropertyConverter propertyConverter;
     private final GraphProperties graphProps;
 
-    public Neo4jGraphAPIImpl(GraphDatabaseService db) {
+    public Neo4jGraphAPIImpl(GraphDatabaseService db, PropertyConverter propertyConverter) {
         this.db = db;
+        this.propertyConverter = propertyConverter;
         graphProps = ((GraphDatabaseAPI) this.db).getDependencyResolver().resolveDependency(EmbeddedProxySPI.class).newGraphPropertiesProxy();
     }
 
     @Override
     public Neo4jNode createNode(String... labels) {
-        return Util.wrap((labels.length == 0) ? db.createNode() : db.createNode(Util.toLabels(labels)));
+        return Util.wrap((labels.length == 0) ? db.createNode() : db.createNode(Util.toLabels(labels)), propertyConverter);
     }
 
     @Override
     public Neo4jNode getNodeById(long id) {
-        return Util.wrap(db.getNodeById(id));
+        return Util.wrap(db.getNodeById(id), propertyConverter);
     }
 
     @Override
     public Neo4jRelationshipImpl getRelationshipById(long id) {
-        return Util.wrap(db.getRelationshipById(id));
+        return Util.wrap(db.getRelationshipById(id), propertyConverter);
     }
 
     @Override
@@ -64,27 +69,27 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
 
     @Override
     public Iterable<Neo4jNode> allNodes() {
-        return Util.wrapNodes(db.getAllNodes());
+        return Util.wrapNodes(db.getAllNodes(), propertyConverter);
     }
 
     @Override
     public Iterable<Neo4jRelationship> allRelationships() {
-        return Util.wrapRels(db.getAllRelationships());
+        return Util.wrapRels(db.getAllRelationships(), propertyConverter);
     }
 
     @Override
     public Iterable<Neo4jNode> findNodes(String label) {
-        return Util.wrapNodes(db.findNodes(Label.label(label)));
+        return Util.wrapNodes(db.findNodes(Label.label(label)), propertyConverter);
     }
 
     @Override
     public Iterable<Neo4jNode> findNodes(String label, String property, Object value) {
-        return Util.wrapNodes(db.findNodes(Label.label(label), property, value));
+        return Util.wrapNodes(db.findNodes(Label.label(label), property, value), propertyConverter);
     }
 
     @Override
     public Iterable<Neo4jNode> findNodes(String label, String property, String template, Neo4jStringSearchMode searchMode) {
-        return Util.wrapNodes(db.findNodes(Label.label(label), property, template, StringSearchMode.valueOf(searchMode.toString())));
+        return Util.wrapNodes(db.findNodes(Label.label(label), property, template, StringSearchMode.valueOf(searchMode.toString())), propertyConverter);
     }
 
     @Override
@@ -100,7 +105,7 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
             protected Map<String, Object> underlyingObjectToObject(Map<String, Object> row) {
                 Map<String, Object> result = new LinkedHashMap<>(row.size());
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
-                    result.put(entry.getKey(), Util.wrapObject(entry.getValue()));
+                    result.put(entry.getKey(), Util.wrapObject(entry.getValue(), propertyConverter));
                 }
                 return result;
             }

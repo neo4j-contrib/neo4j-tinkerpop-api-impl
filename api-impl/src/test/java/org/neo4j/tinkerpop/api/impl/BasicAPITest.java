@@ -1,15 +1,25 @@
 package org.neo4j.tinkerpop.api.impl;
 
-import org.junit.Test;
-import org.neo4j.io.fs.FileUtils;
-import org.neo4j.tinkerpop.api.*;
-
-import java.io.File;
-import java.util.*;
-
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import org.junit.Test;
+import org.neo4j.io.fs.FileUtils;
+import org.neo4j.tinkerpop.api.Neo4jEntity;
+import org.neo4j.tinkerpop.api.Neo4jGraphAPI;
+import org.neo4j.tinkerpop.api.Neo4jNode;
+import org.neo4j.tinkerpop.api.Neo4jRelationship;
+import org.neo4j.tinkerpop.api.Neo4jStringSearchMode;
+import org.neo4j.tinkerpop.api.Neo4jTx;
 
 /**
  * @author mh
@@ -23,7 +33,8 @@ public class BasicAPITest {
     @Test
     public void testCreateGraph() throws Exception {
         FileUtils.deleteRecursively(new File("target/test.db"));
-        Neo4jGraphAPI db = new Neo4jFactoryImpl().newGraphDatabase("target/test.db", null);
+        Map<String, String> config = singletonMap("convertListsToArrays", "true");
+        Neo4jGraphAPI db = new Neo4jFactoryImpl().newGraphDatabase("target/test.db", config);
         for (int i=0;i<10;i++) createGraph(db,false);
 
         long start = System.currentTimeMillis();
@@ -65,6 +76,7 @@ public class BasicAPITest {
             Neo4jNode dan = db.createNode("Person");
             dan.setProperty("name", "Dan");
             dan.setProperty("age", 42);
+            dan.setProperty("langs", asList("en", "fr", "ch"));
 
             Neo4jNode ann = db.createNode("Person");
             ann.setProperty("name", "Ann");
@@ -85,11 +97,13 @@ public class BasicAPITest {
             Map<String, Object> row = result.next();
             assertFalse(result.hasNext());
 
+            assertEquals(asList("en", "fr", "ch"),
+                db.findNodes("Person", "name", "Dan").iterator().next().getProperty("langs"));
+
             assertEquals(dan.getId(), row.get("id"));
             assertEquals(ann, row.get("a"));
             assertEquals(rel, row.get("r"));
             Iterable<Neo4jEntity> path = (Iterable<Neo4jEntity>) row.get("path");
-
 
             Iterator<Neo4jEntity> it = path.iterator();
             assertTrue(it.hasNext());
