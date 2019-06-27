@@ -24,8 +24,8 @@ import org.neo4j.tinkerpop.api.Neo4jRelationship;
 
 public class Neo4jRelationshipImpl extends Neo4jEntityImpl<Relationship> implements Neo4jRelationship {
 
-    public Neo4jRelationshipImpl(Relationship rel) {
-        super(rel);
+    public Neo4jRelationshipImpl(Relationship rel, PropertyConverter propertyConverter) {
+        super(rel, propertyConverter);
     }
 
     @Override
@@ -35,16 +35,16 @@ public class Neo4jRelationshipImpl extends Neo4jEntityImpl<Relationship> impleme
 
     @Override
     public Neo4jNode start() {
-        return new Neo4jNodeImpl(entity.getStartNode());
+        return new Neo4jNodeImpl(entity.getStartNode(), propertyConverter);
     }
 
     @Override
     public Neo4jNode end() {
-        return new Neo4jNodeImpl(entity.getEndNode());
+        return new Neo4jNodeImpl(entity.getEndNode(), propertyConverter);
     }
 
     @Override
     public Neo4jNode other(Neo4jNode node) {
-        return new Neo4jNodeImpl(entity.getOtherNode((((Neo4jNodeImpl) node).entity)));
+        return new Neo4jNodeImpl(entity.getOtherNode((((Neo4jNodeImpl) node).entity)), propertyConverter);
     }
 }

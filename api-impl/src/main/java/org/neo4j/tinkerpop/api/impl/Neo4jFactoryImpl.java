@@ -18,16 +18,15 @@
  */
 package org.neo4j.tinkerpop.api.impl;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.tinkerpop.api.Neo4jFactory;
 import org.neo4j.tinkerpop.api.Neo4jGraphAPI;
-
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Map;
 
 /**
  * @author mh
@@ -42,10 +41,20 @@ public class Neo4jFactoryImpl implements Neo4jFactory {
                 path = new URL(path).getPath();
             }
             GraphDatabaseBuilder builder = createGraphDatabaseFactory(config).newEmbeddedDatabaseBuilder(new File(path));
-            if (config != null) builder = builder.setConfig(config);
-            return new Neo4jGraphAPIImpl(builder.newGraphDatabase());
-        } catch(MalformedURLException e) {
-            throw new RuntimeException("Error handling path "+path,e);
+
+            boolean convertListsToArrays = false;
+            if (config != null) {
+                builder = builder.setConfig(config);
+                convertListsToArrays = Boolean.valueOf(config.get("convertListsToArrays"));
+            }
+
+            PropertyConverter propertyConverter = convertListsToArrays ?
+                new PropertyConverter.ListArray() :
+                new PropertyConverter.None();
+
+            return new Neo4jGraphAPIImpl(builder.newGraphDatabase(), propertyConverter);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error handling path " + path, e);
         }
     }
 

@@ -18,24 +18,27 @@
  */
 package org.neo4j.tinkerpop.api.impl;
 
-import org.neo4j.graphdb.*;
+import static org.neo4j.graphdb.RelationshipType.withName;
+import static org.neo4j.tinkerpop.api.impl.Util.wrap;
+
+import java.util.Set;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.tinkerpop.api.Neo4jDirection;
 import org.neo4j.tinkerpop.api.Neo4jNode;
 import org.neo4j.tinkerpop.api.Neo4jRelationship;
-
-import java.util.Set;
-
-import static org.neo4j.graphdb.RelationshipType.withName;
-import static org.neo4j.tinkerpop.api.impl.Util.wrap;
 
 /**
  * @author mh
  * @since 25.03.15
  */
 public class Neo4jNodeImpl extends Neo4jEntityImpl<Node> implements Neo4jNode {
-    public Neo4jNodeImpl(Node node) {
-        super(node);
+    public Neo4jNodeImpl(Node node, PropertyConverter propertyConverter) {
+        super(node, propertyConverter);
     }
 
     @Override
@@ -82,13 +85,14 @@ public class Neo4jNodeImpl extends Neo4jEntityImpl<Node> implements Neo4jNode {
         return new IterableWrapper<Neo4jRelationship, Relationship>(relationships) {
             @Override
             protected Neo4jRelationship underlyingObjectToObject(Relationship relationship) {
-                return new Neo4jRelationshipImpl(relationship);
+                return new Neo4jRelationshipImpl(relationship, propertyConverter);
             }
         };
     }
 
     @Override
     public Neo4jRelationship connectTo(Neo4jNode node, String type) {
-        return wrap(entity.createRelationshipTo(((Neo4jNodeImpl) node).entity, RelationshipType.withName(type)));
+        return wrap(entity.createRelationshipTo(((Neo4jNodeImpl) node).entity, RelationshipType.withName(type)),
+            propertyConverter);
     }
 }

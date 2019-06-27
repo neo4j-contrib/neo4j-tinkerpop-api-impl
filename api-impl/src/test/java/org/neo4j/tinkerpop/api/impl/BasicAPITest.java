@@ -1,6 +1,7 @@
 package org.neo4j.tinkerpop.api.impl;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -17,6 +18,7 @@ import org.neo4j.tinkerpop.api.Neo4jEntity;
 import org.neo4j.tinkerpop.api.Neo4jGraphAPI;
 import org.neo4j.tinkerpop.api.Neo4jNode;
 import org.neo4j.tinkerpop.api.Neo4jRelationship;
+import org.neo4j.tinkerpop.api.Neo4jStringSearchMode;
 import org.neo4j.tinkerpop.api.Neo4jTx;
 
 /**
@@ -31,7 +33,8 @@ public class BasicAPITest {
     @Test
     public void testCreateGraph() throws Exception {
         FileUtils.deleteRecursively(new File("target/test.db"));
-        Neo4jGraphAPI db = new Neo4jFactoryImpl().newGraphDatabase("target/test.db", null);
+        Map<String, String> config = singletonMap("convertListsToArrays", "true");
+        Neo4jGraphAPI db = new Neo4jFactoryImpl().newGraphDatabase("target/test.db", config);
         for (int i=0;i<10;i++) createGraph(db,false);
 
         long start = System.currentTimeMillis();

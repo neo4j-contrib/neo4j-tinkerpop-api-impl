@@ -19,8 +19,6 @@
 package org.neo4j.tinkerpop.api.impl;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
@@ -33,9 +31,11 @@ import org.neo4j.tinkerpop.api.Neo4jEntity;
 public class Neo4jEntityImpl<T extends PropertyContainer> implements Neo4jEntity {
 
     protected final T entity;
+    protected final PropertyConverter propertyConverter;
 
-    public Neo4jEntityImpl(T entity) {
+    public Neo4jEntityImpl(T entity, PropertyConverter propertyConverter) {
         this.entity = entity;
+        this.propertyConverter = propertyConverter;
     }
 
     @Override
@@ -51,18 +51,14 @@ public class Neo4jEntityImpl<T extends PropertyContainer> implements Neo4jEntity
     @Override
     public Object getProperty(String name) {
         Object property = entity.getProperty(name);
-        if (property.getClass().isArray()) {
-            return asListOfObjects(property);
-        } else {
-            return property;
-        }
+        return propertyConverter.onGet(property);
     }
 
     @Override
     public Object getProperty(String name, Object defaultValue) {
         Object property = entity.getProperty(name, defaultValue);
-        if (defaultValue != property && property.getClass().isArray()) {
-            return asListOfObjects(property);
+        if (defaultValue != property) {
+            return propertyConverter.onGet(property);
         } else {
             return property;
         }
@@ -70,16 +66,13 @@ public class Neo4jEntityImpl<T extends PropertyContainer> implements Neo4jEntity
 
     @Override
     public void setProperty(String name, Object value) {
-        if (value instanceof Collection) {
-            Collection collection = (Collection) value;
-            if (collection.isEmpty()) {
-                entity.removeProperty(name);
-            } else {
-                Object array = toArray(collection);
-                entity.setProperty(name, array);
-            }
+        Object converted = propertyConverter.onSet(value);
+        if (converted != null &&
+            converted.getClass().isArray() &&
+            Array.getLength(converted) == 0) {
+            entity.removeProperty(name);
         } else {
-            entity.setProperty(name, value);
+            entity.setProperty(name, converted);
         }
     }
 
@@ -116,27 +109,5 @@ public class Neo4jEntityImpl<T extends PropertyContainer> implements Neo4jEntity
 
     public T getEntity() {
         return entity;
-    }
-
-    private ArrayList<Object> asListOfObjects(Object array) {
-        int length = Array.getLength(array);
-        ArrayList<Object> result = new ArrayList<>();
-        for (int i = 0; i < length; i++) {
-            Object e = Array.get(array, i);
-            result.add(e);
-        }
-        return result;
-    }
-
-    private Object toArray(Collection collection) {
-        try {
-            Class<?> type = collection.iterator().next().getClass();
-            Object array = Array.newInstance(type, collection.size());
-            collection.toArray((Object[]) array);
-            return array;
-        } catch (ArrayStoreException e) {
-            throw new IllegalArgumentException(
-                "Unable to convert collection to array. Elements have a different type? Got: " + collection, e);
-        }
     }
 }

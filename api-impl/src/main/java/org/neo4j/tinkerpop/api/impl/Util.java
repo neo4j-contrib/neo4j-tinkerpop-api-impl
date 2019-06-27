@@ -18,14 +18,21 @@
  */
 package org.neo4j.tinkerpop.api.impl;
 
-import org.neo4j.graphdb.*;
+import static org.neo4j.graphdb.RelationshipType.withName;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.tinkerpop.api.Neo4jNode;
 import org.neo4j.tinkerpop.api.Neo4jRelationship;
-
-import java.util.*;
-
-import static org.neo4j.graphdb.RelationshipType.withName;
 
 class Util {
     static Label[] toLabels(String... labels) {
@@ -52,47 +59,47 @@ class Util {
         return result;
     }
 
-    static Neo4jNode wrap(Node node) {
-        return new Neo4jNodeImpl(node);
+    static Neo4jNode wrap(Node node, PropertyConverter propertyConverter) {
+        return new Neo4jNodeImpl(node, propertyConverter);
     }
 
-    static Neo4jRelationshipImpl wrap(Relationship rel) {
-        return new Neo4jRelationshipImpl(rel);
+    static Neo4jRelationshipImpl wrap(Relationship rel, PropertyConverter propertyConverter) {
+        return new Neo4jRelationshipImpl(rel, propertyConverter);
     }
 
-    static Iterable<Neo4jNode> wrapNodes(final Iterable<Node> nodes) {
+    static Iterable<Neo4jNode> wrapNodes(final Iterable<Node> nodes, PropertyConverter propertyConverter) {
         return new IterableWrapper<Neo4jNode, Node>(nodes) {
             @Override
             protected Neo4jNode underlyingObjectToObject(Node node) {
-                return wrap(node);
+                return wrap(node, propertyConverter);
             }
         };
     }
-    static Iterable<Neo4jNode> wrapNodes(final ResourceIterator<Node> nodes) {
+    static Iterable<Neo4jNode> wrapNodes(final ResourceIterator<Node> nodes, PropertyConverter propertyConverter) {
         return new IterableWrapper<Neo4jNode, Node>(new SingleIteratorWrapper(nodes)) {
             @Override
             protected Neo4jNode underlyingObjectToObject(Node node) {
-                return wrap(node);
+                return wrap(node, propertyConverter);
             }
         };
     }
-    static Iterable<Neo4jRelationship> wrapRels(final Iterable<Relationship> rels) {
+    static Iterable<Neo4jRelationship> wrapRels(final Iterable<Relationship> rels, PropertyConverter propertyConverter) {
         return new IterableWrapper<Neo4jRelationship, Relationship>(rels) {
             @Override
             protected Neo4jRelationship underlyingObjectToObject(Relationship rel) {
-                return wrap(rel);
+                return wrap(rel, propertyConverter);
             }
         };
     }
 
-    static Object wrapObject(Object value) {
+    static Object wrapObject(Object value, PropertyConverter propertyConverter) {
         if (value == null) return null;
-        if (value instanceof Node) return wrap((Node) value);
-        if (value instanceof Relationship) return wrap((Relationship) value);
+        if (value instanceof Node) return wrap((Node) value, propertyConverter);
+        if (value instanceof Relationship) return wrap((Relationship) value, propertyConverter);
         if (value instanceof Iterable) {
             List<Object> result = new ArrayList<>();
             for (Object o : (Iterable)value) {
-                result.add(wrapObject(o));
+                result.add(wrapObject(o, propertyConverter));
             }
             return result;
         }

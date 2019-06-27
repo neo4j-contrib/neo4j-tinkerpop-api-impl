@@ -1,5 +1,19 @@
 package gremlin;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import javax.script.Bindings;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 import org.apache.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
 import org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jEdge;
 import org.apache.tinkerpop.gremlin.neo4j.structure.Neo4jGraph;
@@ -16,16 +30,7 @@ import org.neo4j.procedure.Procedure;
 import org.neo4j.tinkerpop.api.impl.Neo4jGraphAPIImpl;
 import org.neo4j.tinkerpop.api.impl.Neo4jNodeImpl;
 import org.neo4j.tinkerpop.api.impl.Neo4jRelationshipImpl;
-
-import javax.script.Bindings;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import org.neo4j.tinkerpop.api.impl.PropertyConverter;
 
 /**
  * @author mh
@@ -71,7 +76,7 @@ public class Gremlin {
         if (params != null) bindings.putAll(params);
         bindings.put("db", db);
         // todo cache
-        Neo4jGraph neo4jGraph = Neo4jGraph.open(new Neo4jGraphAPIImpl(db));
+        Neo4jGraph neo4jGraph = Neo4jGraph.open(new Neo4jGraphAPIImpl(db, new PropertyConverter.None()));
 
         bindings.put("graph", neo4jGraph);
         bindings.put("g", neo4jGraph.traversal());
