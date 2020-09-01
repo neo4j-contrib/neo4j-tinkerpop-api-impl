@@ -18,17 +18,15 @@
  */
 package org.neo4j.tinkerpop.api.impl;
 
-import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.StringSearchMode;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.helpers.collection.IteratorWrapper;
-import org.neo4j.kernel.impl.core.NodeManager;
+import org.neo4j.kernel.impl.core.EmbeddedProxySPI;
 import org.neo4j.kernel.impl.core.GraphProperties;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
-import org.neo4j.tinkerpop.api.Neo4jGraphAPI;
-import org.neo4j.tinkerpop.api.Neo4jNode;
-import org.neo4j.tinkerpop.api.Neo4jRelationship;
-import org.neo4j.tinkerpop.api.Neo4jTx;
+import org.neo4j.tinkerpop.api.*;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -41,7 +39,7 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
 
     public Neo4jGraphAPIImpl(GraphDatabaseService db) {
         this.db = db;
-        graphProps = ((GraphDatabaseAPI) this.db).getDependencyResolver().resolveDependency(NodeManager.class).newGraphProperties();
+        graphProps = ((GraphDatabaseAPI) this.db).getDependencyResolver().resolveDependency(EmbeddedProxySPI.class).newGraphPropertiesProxy();
     }
 
     @Override
@@ -82,6 +80,11 @@ public class Neo4jGraphAPIImpl implements Neo4jGraphAPI {
     @Override
     public Iterable<Neo4jNode> findNodes(String label, String property, Object value) {
         return Util.wrapNodes(db.findNodes(Label.label(label), property, value));
+    }
+
+    @Override
+    public Iterable<Neo4jNode> findNodes(String label, String property, String template, Neo4jStringSearchMode searchMode) {
+        return Util.wrapNodes(db.findNodes(Label.label(label), property, template, StringSearchMode.valueOf(searchMode.toString())));
     }
 
     @Override

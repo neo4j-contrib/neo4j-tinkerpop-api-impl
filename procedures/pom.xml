@@ -2,11 +2,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-tinkerpop-api-parent</artifactId>
+    <artifactId>neo4j-tinkerpop-procedures</artifactId>
     <version>0.9-3.4.0</version>
-    <packaging>pom</packaging>
-    <name>Neo4j Tinkerpop API Implementation Parent</name>
-    <description>Apache Licensed Neo4j Tinkerpop API Implementation Parent</description>
+    <packaging>jar</packaging>
+    <name>Neo4j Tinkerpop API Procedures</name>
+    <description>Apache Licensed Neo4j Tinkerpop Procedures</description>
 
     <organization>
         <name>Neo Technology, Inc.</name>
@@ -21,7 +21,17 @@
     <url>http://github.com/neo4j-contrib/neo4j-tinkerpop-api-impl</url>
     <properties>
         <neo4j.version>3.4.11</neo4j.version>
+        <gremlin.version>3.3.4</gremlin.version>
     </properties>
+
+
+    <repositories>
+        <repository>
+            <id>apache-snapshots</id>
+            <url>http://repository.apache.org/snapshots/</url>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
 
     <scm>
         <url>https://github.com/neo4j-contrib/neo4j-tinkerpop-api-impl</url>
@@ -40,16 +50,16 @@
       </license>
     </licenses>
 
-    <modules>
-        <module>api-impl</module>
-        <module>procedures</module>
-    </modules>
-
     <dependencies>
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-tinkerpop-api</artifactId>
             <version>0.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-tinkerpop-api-impl</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>
@@ -80,6 +90,24 @@
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tinkerpop</groupId>
+            <artifactId>neo4j-gremlin</artifactId>
+            <version>${gremlin.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tinkerpop</groupId>
+            <artifactId>gremlin-groovy</artifactId>
+            <version>${gremlin.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy-groovysh</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -131,6 +159,25 @@
                     <includes>
                         <include>**/*.java</include>
                     </includes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.5</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
                 </configuration>
             </plugin>
         </plugins>
